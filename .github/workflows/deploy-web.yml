@@ -6,6 +6,7 @@ on:
     paths:
       - 'Merryvale-GitHub-Pages-Ready-v8.2.zip'
       - 'Merryvale.zip'
+      - '.github/workflows/deploy-web.yml'
   workflow_dispatch:
 
 permissions:
@@ -39,6 +40,10 @@ jobs:
           fi
           test -s project.godot
           test -s export_presets.cfg
+          # Godot Web rejects ETC2/ASTC export when import_etc2_astc is disabled.
+          # The game uses the Compatibility renderer, so disable unused mobile VRAM texture compression.
+          sed -i 's/^vram_texture_compression\/for_mobile=true$/vram_texture_compression\/for_mobile=false/' export_presets.cfg
+          grep -n '^vram_texture_compression/' export_presets.cfg
           test -s main.tscn
           test -s game.gd
           test -d assets
