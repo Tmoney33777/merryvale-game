@@ -1,0 +1,89 @@
+name: Build and publish Merryvale
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Merryvale-GitHub-Pages-Ready-v8.2.zip'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: merryvale-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    container:
+      image: barichello/godot-ci:4.5.2
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Unpack complete Merryvale source
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "Merryvale-GitHub-Pages-Ready-v8.2.zip"
+          unzip -oq "Merryvale-GitHub-Pages-Ready-v8.2.zip" -d .
+          test -s project.godot
+          test -s export_presets.cfg
+          test -s main.tscn
+          test -s game.gd
+          test -d assets
+          echo "Godot project and assets extracted."
+
+      - name: Check Godot and export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+          godot --version
+          mkdir -p "$HOME/.local/share/godot/export_templates"
+          if [ -d /root/.local/share/godot/export_templates/4.5.2.stable ] && [ "$HOME" != /root ]; then
+            cp -a /root/.local/share/godot/export_templates/4.5.2.stable "$HOME/.local/share/godot/export_templates/"
+          fi
+          test -d "$HOME/.local/share/godot/export_templates/4.5.2.stable"
+
+      - name: Import Godot game assets
+        shell: bash
+        run: godot --headless --editor --path . --import
+
+      - name: Export browser version
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/web
+          godot --headless --path . --export-release "Web" "build/web/index.html"
+          test -s build/web/index.html
+          touch build/web/.nojekyll
+          echo "Web export created."
+
+      - name: Save browser build as a downloadable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: merryvale-web-v8.2
+          path: build/web/
+          if-no-files-found: error
+
+      - name: Package for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web/
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Publish Merryvale
+        id: deployment
+        uses: actions/deploy-pages@v4
