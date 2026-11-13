@@ -6,8 +6,8 @@ This repository is prepared to host the **Godot web/iPhone edition** of Merryval
 
 **The actual game archive has not been uploaded yet.** The workflow in `.github/workflows/deploy-web.yml` is ready, but cannot build until the archive is uploaded.
 
-1. Download **Merryvale-GitHub-Pages-Ready-v8.2.zip** from your ChatGPT conversation. **Keep it zipped.**
-2. In this GitHub repository, choose **Add file → Upload files**, select the ZIP, and commit it to **main**. Upload it to the repository root using the *exact filename* above; do not extract it.
+1. Download **Merryvale.zip** (or **Merryvale-GitHub-Pages-Ready-v8.2.zip**) from your ChatGPT conversation. **Keep it zipped.**
+2. In this GitHub repository, choose **Add file → Upload files**, select the ZIP, and commit it to **main**. Upload it to the repository root using either filename above; do not extract it.
 3. Go to the **Actions** tab and open **Build and publish Merryvale**. GitHub will build the Godot web game using its own runner, so your Steam Deck does not need to export anything.
 4. In **Settings → Pages → Build and deployment**, choose **GitHub Actions** as the source.
 5. After both build and deployment complete successfully, get the live link from **Settings → Pages** or the deployment. Its expected URL format is `https://tmoney33777.github.io/merryvale-game/`; this is **not yet confirmed live**.
