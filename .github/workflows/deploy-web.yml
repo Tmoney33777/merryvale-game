@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'Merryvale-GitHub-Pages-Ready-v8.2.zip'
+      - 'Merryvale.zip'
   workflow_dispatch:
 
 permissions:
@@ -29,8 +30,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s "Merryvale-GitHub-Pages-Ready-v8.2.zip"
-          unzip -oq "Merryvale-GitHub-Pages-Ready-v8.2.zip" -d .
+          if [ -s "Merryvale.zip" ]; then
+            unzip -oq "Merryvale.zip" -d .
+          elif [ -s "Merryvale-GitHub-Pages-Ready-v8.2.zip" ]; then
+            unzip -oq "Merryvale-GitHub-Pages-Ready-v8.2.zip" -d .
+          else
+            echo "Merryvale archive missing"; exit 1
+          fi
           test -s project.godot
           test -s export_presets.cfg
           test -s main.tscn
